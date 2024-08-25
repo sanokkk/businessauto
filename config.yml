@@ -1,0 +1,13 @@
+db_config:
+  connection_string: auto.db
+  migrations_path: ./migrations
+  migrations_table: migrations
+jwt_config:
+  secret: secretpa44
+  expire_after: 20m
+  refresh_expire_after: 1h
+api_config:
+  port: 8081
+  host: localhost
+content_storage_config:
+  use_content_storage: false

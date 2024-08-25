@@ -1,0 +1,28 @@
+// пример запроса на получение без фильтров
+{
+  "body": {
+    "skip": 0,
+    "take": 100,
+    "filters": null,
+    "order": [
+      { "field": "title", "desc": false }
+    ]
+  }
+}
+
+// пример запроса на получение с фильтрами
+{
+  "body": {
+    "skip": 0,
+    "take": 100,
+    "filters": {
+      "categoriesFilter": { "categories": ["one"] },
+      "titleFilter": {"title":  "abc"},
+      "priceFilter": { "min": 0, "max": 1150 },
+      "makerFilter": { "makers": [ "one" ] }
+    },
+    "order": [
+      { "field": "title", "desc": false }
+    ]
+  }
+}

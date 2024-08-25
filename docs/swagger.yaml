@@ -1,10 +1,72 @@
 definitions:
+  dto.GetProductsDto:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+    type: object
+  dto.ReauthResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  dto.Request:
+    properties:
+      body:
+        $ref: '#/definitions/filters.FilterBody'
+    type: object
   dto.TokenResponse:
     properties:
       refresh_token:
         type: string
       token:
         type: string
+    type: object
+  filters.FilterBody:
+    properties:
+      filter: {}
+      order:
+        items:
+          $ref: '#/definitions/filters.OrderBy'
+        type: array
+      skip:
+        type: integer
+      take:
+        type: integer
+    type: object
+  filters.OrderBy:
+    properties:
+      desc:
+        type: boolean
+      field:
+        type: string
+    type: object
+  models.Product:
+    properties:
+      id:
+        type: string
+      imagesIds:
+        items:
+          type: string
+        type: array
+      maker:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  service.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 10
+        type: string
+    required:
+    - email
+    - password
     type: object
   service.RegisterInput:
     properties:
@@ -22,6 +84,75 @@ info:
   contact: {}
   title: Tag Api for shop
 paths:
+  /api/products/get:
+    post:
+      consumes:
+      - application/json
+      description: gets products with pagination and filters
+      parameters:
+      - description: Получение товаров
+        in: body
+        name: GetProductsRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetProductsDto'
+      summary: Получение товаров
+      tags:
+      - Products
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: login the user and returns tokens
+      parameters:
+      - description: Аутентификация пользователя
+        in: body
+        name: LoginData
+        required: true
+        schema:
+          $ref: '#/definitions/service.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TokenResponse'
+      summary: Аутентификация пользователя
+      tags:
+      - Users
+  /api/users/reauth:
+    get:
+      consumes:
+      - application/json
+      description: login the user and returns tokens
+      parameters:
+      - in: header
+        name: email
+        required: true
+        type: string
+      - in: header
+        minLength: 10
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReauthResponse'
+      summary: Обновление токена
+      tags:
+      - Users
   /api/users/register:
     post:
       consumes:
@@ -43,5 +174,5 @@ paths:
             $ref: '#/definitions/dto.TokenResponse'
       summary: Регистрация нового пользователя
       tags:
-      - tags
+      - Users
 swagger: "2.0"

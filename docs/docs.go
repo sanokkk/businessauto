@@ -15,6 +15,112 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/products/get": {
+            "post": {
+                "description": "gets products with pagination and filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Получение товаров",
+                "parameters": [
+                    {
+                        "description": "Получение товаров",
+                        "name": "GetProductsRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetProductsDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/login": {
+            "post": {
+                "description": "login the user and returns tokens",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Аутентификация пользователя",
+                "parameters": [
+                    {
+                        "description": "Аутентификация пользователя",
+                        "name": "LoginData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.LoginInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TokenResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/reauth": {
+            "get": {
+                "description": "login the user and returns tokens",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Обновление токена",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "email",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "minLength": 10,
+                        "type": "string",
+                        "name": "password",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReauthResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/register": {
             "post": {
                 "description": "register the user and returns tokens",
@@ -25,7 +131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tags"
+                    "Users"
                 ],
                 "summary": "Регистрация нового пользователя",
                 "parameters": [
@@ -51,6 +157,33 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.GetProductsDto": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Product"
+                    }
+                }
+            }
+        },
+        "dto.ReauthResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Request": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "$ref": "#/definitions/filters.FilterBody"
+                }
+            }
+        },
         "dto.TokenResponse": {
             "type": "object",
             "properties": {
@@ -59,6 +192,74 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "filters.FilterBody": {
+            "type": "object",
+            "properties": {
+                "filter": {},
+                "order": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/filters.OrderBy"
+                    }
+                },
+                "skip": {
+                    "type": "integer"
+                },
+                "take": {
+                    "type": "integer"
+                }
+            }
+        },
+        "filters.OrderBy": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "boolean"
+                },
+                "field": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Product": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "imagesIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "maker": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.LoginInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 10
                 }
             }
         },

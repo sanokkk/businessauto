@@ -6,6 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @BasePath		/api/users
+// @Summary		Аутентификация пользователя
+// @Description	login the user and returns tokens
+// @Param			LoginData	body	service.LoginInput	true	"Аутентификация пользователя"
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	dto.TokenResponse
+// @Router			/api/users/login [post]
 func (h *HttpHandler) Login(c *gin.Context) {
 	var input service.LoginInput
 

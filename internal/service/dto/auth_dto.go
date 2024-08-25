@@ -10,3 +10,7 @@ type GetUserResponse struct {
 	FullName string `json:"fullName"`
 	Role     string `json:"role"`
 }
+
+type ReauthResponse struct {
+	Token string `json:"token"`
+}

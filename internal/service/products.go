@@ -1,7 +1,7 @@
 package service
 
 import (
-	"autoshop/internal/domain/models"
+	"autoshop/internal/service/dto"
 	"autoshop/internal/storage"
 	"autoshop/internal/storage/filters"
 	"autoshop/pkg/custom_errors"
@@ -12,7 +12,7 @@ import (
 )
 
 type ProductsService interface {
-	GetProducts(filter *filters.FilterBody) ([]models.Product, error)
+	GetProducts(filter *filters.FilterBody) (dto.GetProductsDto, error)
 }
 
 type ProductService struct {
@@ -23,7 +23,7 @@ func NewProductService(productsStorage storage.ProductStorage) *ProductService {
 	return &ProductService{productsStorage: productsStorage}
 }
 
-func (s *ProductService) GetProducts(filter *filters.FilterBody) ([]models.Product, error) {
+func (s *ProductService) GetProducts(filter *filters.FilterBody) (dto.GetProductsDto, error) {
 	const op = "ProductService.GetProducts"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -34,12 +34,12 @@ func (s *ProductService) GetProducts(filter *filters.FilterBody) ([]models.Produ
 	return s.processWithFilter(filter, log)
 }
 
-func (s *ProductService) processWithFilter(filter *filters.FilterBody, log *slog.Logger) ([]models.Product, error) {
+func (s *ProductService) processWithFilter(filter *filters.FilterBody, log *slog.Logger) (dto.GetProductsDto, error) {
 	var productFilter filters.ProductFilter
 	if err := mapstructure.Decode(filter.Filter, &productFilter); err != nil {
 		log.Warn("Ошибка конвертации базового фильтра к продуктовому")
 
-		return nil, custom_errors.ConvertationError
+		return dto.GetProductsDto{}, custom_errors.ConvertationError
 	}
 
 	//todo find out why i cant parse struct from interface
@@ -54,21 +54,21 @@ func (s *ProductService) processWithFilter(filter *filters.FilterBody, log *slog
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров с фильтрами: %w", err))
 
-		return nil, err
+		return dto.GetProductsDto{}, err
 	}
 
-	return products, nil
+	return dto.GetProductsDto{Products: products}, nil
 }
 
-func (s *ProductService) processWithoutFilter(filter *filters.FilterBody, log *slog.Logger) ([]models.Product, error) {
+func (s *ProductService) processWithoutFilter(filter *filters.FilterBody, log *slog.Logger) (dto.GetProductsDto, error) {
 	log.Info("Запрашиваю товары без фильтров")
 
 	products, err := s.productsStorage.Get(filter.Skip, filter.Take, filter.Order)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров без фильтров: %w", err))
 
-		return nil, err
+		return dto.GetProductsDto{}, err
 	}
 
-	return products, nil
+	return dto.GetProductsDto{Products: products}, nil
 }

@@ -34,11 +34,11 @@ func NewHttpHandler(
 		validate:       validator.New(validator.WithRequiredStructEnabled())}
 }
 
-// @title HTTP api controller
-// @version 1.0
+//	@title		HTTP api controller
+//	@version	1.0
 
-// @host localhost:8081
-// @BasePath /api
+//	@host		localhost:8081
+//	@BasePath	/api
 
 // starts http handler
 func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
@@ -47,7 +47,6 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 	router := gin.Default()
 	router.Use(gin.Recovery())
-	//docs.SwaggerInfo.BasePath = "/api/v1"
 
 	public := router.Group("/api")
 
@@ -72,7 +71,7 @@ func addUserRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	users := public.Group("/users")
 	users.POST("/register", r.Register)
 	users.POST("/login", r.Login)
-	users.GET("/reauth", r.Reauth)
+	users.GET("/reauth", middleware.Authenticate(), r.Reauth)
 }
 func addProductRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	products := public.Group("/products")

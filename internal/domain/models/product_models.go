@@ -17,7 +17,7 @@ type Product struct {
 	Price      float64
 	ImagesIds  uuid_helpers.UUIDArray `gorm:"column:imageIds;type:jsonb"`
 	Maker      string
-	Categories []Category `gorm:"many2many:product_category;" json:"categories,omitempty"`
+	Categories []Category `gorm:"many2many:product_category;" json:"-,omitempty"`
 }
 
 type ProductCategory struct {

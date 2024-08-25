@@ -7,6 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @BasePath		/api/products
+// @Summary		Получение товаров
+// @Description	gets products with pagination and filters
+// @Param			GetProductsRequest	body	dto.Request	true	"Получение товаров"
+// @Tags			Products
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	dto.GetProductsDto
+// @Router			/api/products/get [post]
 func (r *HttpHandler) GetProducts(c *gin.Context) {
 	const op = "HttpHandler.GetProducts"
 	log := logging.CreateLoggerWithOp(op)
@@ -21,7 +30,7 @@ func (r *HttpHandler) GetProducts(c *gin.Context) {
 		return
 	}
 
-	products, err := r.productService.GetProducts(&request.Body)
+	productsResponse, err := r.productService.GetProducts(&request.Body)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров: %w", err))
 
@@ -29,5 +38,5 @@ func (r *HttpHandler) GetProducts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, products)
+	c.JSON(200, productsResponse)
 }

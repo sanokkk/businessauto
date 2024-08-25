@@ -29,7 +29,7 @@ type AuthService interface {
 	Register(input RegisterInput) (*dto.TokenResponse, error)
 	GetUser(userId uuid.UUID) (*dto.GetUserResponse, error)
 	Login(input LoginInput) (*dto.TokenResponse, error)
-	Reauth(refresh string) (string, error)
+	Reauth(refresh string) (dto.ReauthResponse, error)
 }
 
 type JwtAuthService struct {
@@ -131,7 +131,7 @@ func (s *JwtAuthService) Login(input LoginInput) (*dto.TokenResponse, error) {
 
 }
 
-func (s *JwtAuthService) Reauth(refresh string) (string, error) {
+func (s *JwtAuthService) Reauth(refresh string) (dto.ReauthResponse, error) {
 	const op = "JwtAuthService.Reauth"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -139,8 +139,8 @@ func (s *JwtAuthService) Reauth(refresh string) (string, error) {
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка при регенерации токена: %s", err.Error()))
 
-		return "", err
+		return dto.ReauthResponse{}, err
 	}
 
-	return newToken, nil
+	return dto.ReauthResponse{Token: newToken}, nil
 }

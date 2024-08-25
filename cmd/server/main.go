@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "autoshop/docs"
 	"autoshop/internal/app/api"
 	"autoshop/internal/config"
 	"autoshop/internal/storage/migrate"
@@ -9,6 +10,7 @@ import (
 	"log/slog"
 )
 
+// @title Tag Api for shop
 func main() {
 	cfg := config.MustLoadConfig()
 	//fmt.Printf("%+v\n", cfg)

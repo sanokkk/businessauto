@@ -1,0 +1,47 @@
+definitions:
+  dto.TokenResponse:
+    properties:
+      refresh_token:
+        type: string
+      token:
+        type: string
+    type: object
+  service.RegisterInput:
+    properties:
+      email:
+        type: string
+      fullName:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+info:
+  contact: {}
+  title: Tag Api for shop
+paths:
+  /api/users/register:
+    post:
+      consumes:
+      - application/json
+      description: register the user and returns tokens
+      parameters:
+      - description: Регистрация нового пользователя
+        in: body
+        name: RegisterData
+        required: true
+        schema:
+          $ref: '#/definitions/service.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TokenResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - tags
+swagger: "2.0"

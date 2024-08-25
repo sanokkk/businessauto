@@ -7,6 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @BasePath /api/users
+// @Summary Регистрация нового пользователя
+// @Description register the user and returns tokens
+// @Param RegisterData body service.RegisterInput true "Регистрация нового пользователя"
+// @Tags tags
+// @Accept json
+// @Produce json
+// @Success 201 {object} dto.TokenResponse
+// @Router /api/users/register [post]
 func (r *HttpHandler) Register(c *gin.Context) {
 	var input service.RegisterInput
 

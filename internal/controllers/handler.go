@@ -5,6 +5,7 @@ import (
 	"autoshop/internal/middleware"
 	"autoshop/internal/service"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"log/slog"
@@ -37,6 +38,7 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 	router := gin.Default()
 	router.Use(gin.Recovery())
+	configureMiddleware(router)
 
 	public := router.Group("/api")
 
@@ -54,6 +56,14 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 		log.Error(err.Error())
 
 		panic(err)
+	}
+}
+
+func configureMiddleware(router *gin.Engine) {
+	cfg := config.MustLoadConfig()
+
+	if cfg.ApiConfig.EnableAnyOrigin {
+		router.Use(cors.Default())
 	}
 }
 

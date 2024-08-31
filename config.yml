@@ -9,5 +9,6 @@ jwt_config:
 api_config:
   port: 8081
   host: localhost
+  enable_any_origin: true
 content_storage_config:
   use_content_storage: false

@@ -15,6 +15,29 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/categories/get": {
+            "post": {
+                "description": "gets categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Получение категорий",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetCategoriesDto"
+                        }
+                    }
+                }
+            }
+        },
         "/api/products/get": {
             "post": {
                 "description": "gets products with pagination and filters",
@@ -99,14 +122,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "email",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "minLength": 10,
-                        "type": "string",
-                        "name": "password",
+                        "description": "Рефреш",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }
@@ -157,6 +174,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.GetCategoriesDto": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                }
+            }
+        },
         "dto.GetProductsDto": {
             "type": "object",
             "properties": {
@@ -197,6 +225,12 @@ const docTemplate = `{
         },
         "filters.FilterBody": {
             "type": "object",
+            "required": [
+                "filter",
+                "order",
+                "skip",
+                "take"
+            ],
             "properties": {
                 "filter": {},
                 "order": {
@@ -220,6 +254,23 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "field": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Product"
+                    }
+                },
+                "title": {
                     "type": "string"
                 }
             }

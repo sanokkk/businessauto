@@ -1,4 +1,11 @@
 definitions:
+  dto.GetCategoriesDto:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+    type: object
   dto.GetProductsDto:
     properties:
       products:
@@ -34,12 +41,28 @@ definitions:
         type: integer
       take:
         type: integer
+    required:
+    - filter
+    - order
+    - skip
+    - take
     type: object
   filters.OrderBy:
     properties:
       desc:
         type: boolean
       field:
+        type: string
+    type: object
+  models.Category:
+    properties:
+      id:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      title:
         type: string
     type: object
   models.Product:
@@ -84,6 +107,21 @@ info:
   contact: {}
   title: Tag Api for shop
 paths:
+  /api/categories/get:
+    post:
+      consumes:
+      - application/json
+      description: gets categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetCategoriesDto'
+      summary: Получение категорий
+      tags:
+      - Categories
   /api/products/get:
     post:
       consumes:
@@ -134,13 +172,9 @@ paths:
       - application/json
       description: login the user and returns tokens
       parameters:
-      - in: header
-        name: email
-        required: true
-        type: string
-      - in: header
-        minLength: 10
-        name: password
+      - description: Рефреш
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:

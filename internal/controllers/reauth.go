@@ -8,7 +8,7 @@ import (
 // @BasePath		/api/users
 // @Summary		Обновление токена
 // @Description	login the user and returns tokens
-// @Param			Refresh	header	service.LoginInput	true	"Обновление токена"
+// @Param Authorization header string true "Рефреш"
 // @Tags			Users
 // @Accept			json
 // @Produce		json

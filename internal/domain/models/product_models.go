@@ -6,18 +6,18 @@ import (
 )
 
 type Category struct {
-	Id       uuid.UUID
-	Title    string
+	Id       uuid.UUID `json:"id"`
+	Title    string    `json:"title"`
 	Products []Product `gorm:"many2many:product_category;"`
 }
 
 type Product struct {
-	Id         uuid.UUID
-	Title      string
-	Price      float64
-	ImagesIds  uuid_helpers.UUIDArray `gorm:"column:imageIds;type:jsonb"`
-	Maker      string
-	Categories []Category `gorm:"many2many:product_category;" json:"-,omitempty"`
+	Id         uuid.UUID              `json:"id"`
+	Title      string                 `json:"title"`
+	Price      float64                `json:"price"`
+	ImagesIds  uuid_helpers.UUIDArray `gorm:"column:imageIds;type:jsonb" json:"imagesIds"`
+	Maker      string                 `json:"maker"`
+	Categories []Category             `gorm:"many2many:product_category;" json:"-,omitempty"`
 }
 
 type ProductCategory struct {

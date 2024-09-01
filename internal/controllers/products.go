@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"autoshop/internal/service/dto"
+	"autoshop/internal/storage/filters"
 	"autoshop/pkg/logging"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,7 @@ func (r *HttpHandler) GetProducts(c *gin.Context) {
 
 	log.Info("Получил запрос на получение товаров")
 
-	var request dto.Request
+	var request filters.FilterBody
 	if err := c.BindJSON(&request); err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения запроса: %w", err))
 
@@ -30,7 +30,7 @@ func (r *HttpHandler) GetProducts(c *gin.Context) {
 		return
 	}
 
-	productsResponse, err := r.productService.GetProducts(&request.Body)
+	productsResponse, err := r.productService.GetProducts(&request)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров: %w", err))
 

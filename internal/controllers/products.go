@@ -24,9 +24,9 @@ func (r *HttpHandler) GetProducts(c *gin.Context) {
 
 	var request filters.FilterBody
 	if err := c.BindJSON(&request); err != nil {
-		log.Warn(fmt.Sprintf("Ошибка получения запроса: %w", err))
+		log.Warn(fmt.Sprintf("Ошибка получения запроса: %s", err))
 
-		RespondWithError(c, 400, fmt.Sprintf("Ошибка получения запроса: %w", err), err)
+		RespondWithError(c, 400, fmt.Sprintf("Ошибка получения запроса: %s", err.Error()), err)
 		return
 	}
 

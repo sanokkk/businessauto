@@ -8,7 +8,7 @@ import (
 type Category struct {
 	Id       uuid.UUID `json:"id"`
 	Title    string    `json:"title"`
-	Products []Product `gorm:"many2many:product_category;"`
+	Products []Product `gorm:"many2many:product_category;" json:"-,omitempty"`
 }
 
 type Product struct {

@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/categories/get": {
+        "/api/categories": {
             "post": {
                 "description": "gets categories",
                 "consumes": [
@@ -263,12 +263,6 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Product"
-                    }
                 },
                 "title": {
                     "type": "string"

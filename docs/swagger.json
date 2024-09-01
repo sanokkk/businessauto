@@ -5,7 +5,7 @@
         "contact": {}
     },
     "paths": {
-        "/api/categories/get": {
+        "/api/categories": {
             "post": {
                 "description": "gets categories",
                 "consumes": [
@@ -253,12 +253,6 @@
             "properties": {
                 "id": {
                     "type": "string"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Product"
-                    }
                 },
                 "title": {
                     "type": "string"

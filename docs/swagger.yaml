@@ -58,10 +58,6 @@ definitions:
     properties:
       id:
         type: string
-      products:
-        items:
-          $ref: '#/definitions/models.Product'
-        type: array
       title:
         type: string
     type: object
@@ -107,7 +103,7 @@ info:
   contact: {}
   title: Tag Api for shop
 paths:
-  /api/categories/get:
+  /api/categories:
     post:
       consumes:
       - application/json

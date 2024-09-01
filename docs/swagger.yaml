@@ -13,6 +13,15 @@ definitions:
           $ref: '#/definitions/models.Product'
         type: array
     type: object
+  dto.GetUserResponse:
+    properties:
+      email:
+        type: string
+      fullName:
+        type: string
+      role:
+        type: string
+    type: object
   dto.ReauthResponse:
     properties:
       token:
@@ -42,7 +51,6 @@ definitions:
       take:
         type: integer
     required:
-    - filter
     - order
     - skip
     - take
@@ -139,6 +147,27 @@ paths:
       summary: Получение товаров
       tags:
       - Products
+  /api/users/:
+    get:
+      consumes:
+      - application/json
+      description: gets user information
+      parameters:
+      - description: JWT
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetUserResponse'
+      summary: Получение информации о пользователе
+      tags:
+      - Users
   /api/users/login:
     post:
       consumes:

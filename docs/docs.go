@@ -72,6 +72,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/": {
+            "get": {
+                "description": "gets user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получение информации о пользователе",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetUserResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/login": {
             "post": {
                 "description": "login the user and returns tokens",
@@ -196,6 +228,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GetUserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ReauthResponse": {
             "type": "object",
             "properties": {
@@ -226,7 +272,6 @@ const docTemplate = `{
         "filters.FilterBody": {
             "type": "object",
             "required": [
-                "filter",
                 "order",
                 "skip",
                 "take"

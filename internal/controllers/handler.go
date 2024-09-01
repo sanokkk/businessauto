@@ -83,6 +83,7 @@ func addUserRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	users.POST("/register", r.Register)
 	users.POST("/login", r.Login)
 	users.GET("/reauth", middleware.Authenticate(), r.Reauth)
+	users.GET("/", middleware.Authenticate(), r.GetMyUser)
 }
 func addProductRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	products := public.Group("/products")

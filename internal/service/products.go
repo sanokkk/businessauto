@@ -13,6 +13,7 @@ import (
 
 type ProductsService interface {
 	GetProducts(filter *filters.FilterBody) (dto.GetProductsDto, error)
+	GetCategories() (*dto.GetCategoriesDto, error)
 }
 
 type ProductService struct {
@@ -71,4 +72,20 @@ func (s *ProductService) processWithoutFilter(filter *filters.FilterBody, log *s
 	}
 
 	return dto.GetProductsDto{Products: products}, nil
+}
+
+func (s *ProductService) GetCategories() (*dto.GetCategoriesDto, error) {
+	const op = "ProductService.GetCategories"
+	log := logging.CreateLoggerWithOp(op)
+
+	log.Info("Начинаю получение категорий")
+
+	result, err := s.productsStorage.GetCategories()
+	if err != nil {
+		log.Warn(fmt.Sprintf("Ошибка получения категорий: %s", err.Error()))
+
+		return nil, err
+	}
+
+	return &dto.GetCategoriesDto{Categories: result}, nil
 }

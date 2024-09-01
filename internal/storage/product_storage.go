@@ -113,6 +113,8 @@ func (s *ProductStore) GetWithFilter(filter filters.ProductFilter, skip int, tak
 	var products []models.Product
 
 	res := tx.
+		Offset(skip).
+		Limit(take).
 		Order(orderExpr).
 		Find(&products)
 
@@ -166,6 +168,23 @@ func (s *ProductStore) Get(skip int, take int, order []filters.OrderBy) ([]model
 	}
 
 	return products, nil
+}
+
+func (s *ProductStore) GetCategories() ([]models.Category, error) {
+	const op = "ProductStore.GetCategories"
+	log := logging.CreateLoggerWithOp(op)
+
+	var result []models.Category
+
+	tx := s.db.Table("categories").Find(&result)
+	if tx.Error != nil {
+		err := errorswrap.Wrap(errors.New("Ошибка получения категорий"), tx.Error)
+		log.Warn(err.Error())
+
+		return nil, tx.Error
+	}
+
+	return result, nil
 }
 
 func getOrderByExpression(orders []filters.OrderBy) string {

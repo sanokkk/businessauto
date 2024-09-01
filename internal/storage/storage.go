@@ -16,4 +16,5 @@ type ProductStorage interface {
 	//GetById(id string) (*models.Product, error)
 	GetWithFilter(filter filters.ProductFilter, skip int, take int, order []filters.OrderBy) ([]models.Product, error)
 	Get(skip int, take int, order []filters.OrderBy) ([]models.Product, error)
+	GetCategories() ([]models.Category, error)
 }

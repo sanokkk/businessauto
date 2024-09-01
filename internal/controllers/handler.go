@@ -57,6 +57,7 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 	addUserRoutes(public, r)
 	addProductRoutes(public, r)
 	addContentRoutes(public, r)
+	addCategoriesRoutes(public, r)
 
 	log.Info("Запускаю HTTP сервер")
 
@@ -93,4 +94,10 @@ func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
 
 	products.Use(middleware.CheckFeatureFlag())
 	products.POST("/post", r.UploadFile)
+}
+
+func addCategoriesRoutes(public *gin.RouterGroup, r *HttpHandler) {
+	categories := public.Group("/categories")
+
+	categories.GET("/", r.GetCategories)
 }

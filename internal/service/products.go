@@ -51,7 +51,7 @@ func (s *ProductService) processWithFilter(filter *filters.FilterBody, log *slog
 		return nil, custom_errors.ConvertationError
 	}*/
 
-	products, err := s.productsStorage.GetWithFilter(productFilter, filter.Skip, filter.Take, filter.Order)
+	products, err := s.productsStorage.GetWithFilter(productFilter, *filter.Skip, *filter.Take, filter.Order)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров с фильтрами: %w", err))
 
@@ -64,7 +64,7 @@ func (s *ProductService) processWithFilter(filter *filters.FilterBody, log *slog
 func (s *ProductService) processWithoutFilter(filter *filters.FilterBody, log *slog.Logger) (dto.GetProductsDto, error) {
 	log.Info("Запрашиваю товары без фильтров")
 
-	products, err := s.productsStorage.Get(filter.Skip, filter.Take, filter.Order)
+	products, err := s.productsStorage.Get(*filter.Skip, *filter.Take, filter.Order)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения товаров без фильтров: %w", err))
 

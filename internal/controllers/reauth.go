@@ -20,7 +20,7 @@ func (r *HttpHandler) Reauth(c *gin.Context) {
 
 	log.Info("Поступил запрос на регенерацию токена")
 
-	refresh := c.GetString("refresh")
+	refresh := c.GetHeader("Authorization")
 	tokenResponse, err := r.authService.Reauth(refresh)
 	if err != nil {
 		RespondWithError(c, 401, err.Error(), err)

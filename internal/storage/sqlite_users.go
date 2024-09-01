@@ -2,6 +2,7 @@ package storage
 
 import (
 	"autoshop/internal/domain/models"
+	"autoshop/pkg/hash"
 	"autoshop/pkg/logging"
 	"database/sql"
 	"errors"
@@ -88,7 +89,7 @@ LIMIT 1
 	return &user, nil
 }
 
-func (r *SqliteUserStorage) CheckCredentials(email string, passwordHash string) (*models.User, error) {
+func (r *SqliteUserStorage) CheckCredentials(email string, password string) (*models.User, error) {
 	const op = "SqliteUserStorage.CheckCredentials"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -113,7 +114,8 @@ LIMIT 1
 		return nil, errors.Join(ErrSearch, err)
 	}
 
-	if user.PasswordHash != passwordHash {
+	hasher := hash.BcryptHash{}
+	if !hash.ComparePasswordAndHash(hasher, password, user.PasswordHash) {
 		log.Error("Не совпадают пароли", slog.String("email", email))
 
 		return nil, ErrPassIncorrect

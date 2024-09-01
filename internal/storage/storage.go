@@ -8,7 +8,7 @@ import (
 type UserStorage interface {
 	SaveUser(user *models.User) error
 	GetUser(id string) (*models.User, error)
-	CheckCredentials(email string, passwordHash string) (*models.User, error)
+	CheckCredentials(email string, password string) (*models.User, error)
 }
 
 type ProductStorage interface {

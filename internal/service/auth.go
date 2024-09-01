@@ -22,7 +22,7 @@ type RegisterInput struct {
 
 type LoginInput struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,gte=10"`
+	Password string `json:"password" validate:"required"`
 }
 
 type AuthService interface {
@@ -96,10 +96,7 @@ func (s *JwtAuthService) Login(input LoginInput) (*dto.TokenResponse, error) {
 	const op = "JwtAuthService.Login"
 	log := logging.CreateLoggerWithOp(op)
 
-	hasher := hash.BcryptHash{}
-	passwordHash := hash.HashPassword(hasher, input.Password)
-
-	user, err := s.userStore.CheckCredentials(input.Email, passwordHash)
+	user, err := s.userStore.CheckCredentials(input.Email, input.Password)
 	if err != nil {
 		if errors.Is(err, storage.ErrNoUserWithCred) {
 			log.Warn("Пользователя с такой почтой нет", slog.String("email", input.Email))

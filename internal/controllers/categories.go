@@ -13,7 +13,7 @@ import (
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	dto.GetCategoriesDto
-// @Router			/api/categories [post]
+// @Router			/api/categories [get]
 func (r *HttpHandler) GetCategories(c *gin.Context) {
 	const op = "HttpHandler.GetCategories"
 	log := logging.CreateLoggerWithOp(op)

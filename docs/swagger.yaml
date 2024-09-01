@@ -104,7 +104,7 @@ info:
   title: Tag Api for shop
 paths:
   /api/categories:
-    post:
+    get:
       consumes:
       - application/json
       description: gets categories

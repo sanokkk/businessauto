@@ -16,7 +16,7 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/categories": {
-            "post": {
+            "get": {
                 "description": "gets categories",
                 "consumes": [
                     "application/json"

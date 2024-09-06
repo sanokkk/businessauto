@@ -8,11 +8,11 @@ import (
 // @BasePath		/api/users
 // @Summary		Получение информации о пользователе
 // @Description	gets user information
-// @Param Authorization header string true "JWT"
+// @Param			Authorization	header	string	true	"JWT"
 // @Tags			Users
 // @Accept			json
 // @Produce		json
-// @Success		200	{object} dto.GetUserResponse
+// @Success		200	{object}	dto.GetUserResponse
 // @Router			/api/users/ [get]
 func (r *HttpHandler) GetMyUser(c *gin.Context) {
 	userId := c.GetString("uid")

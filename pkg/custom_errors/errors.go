@@ -13,4 +13,5 @@ var (
 	InternalError              = errors.New("Неизвестная ошибка")
 	NoSuchFilterError          = errors.New("Нет такого фильтра")
 	ConvertationError          = errors.New("Ошибка конвертации")
+	NoFileError                = errors.New("Данного файла не существует")
 )

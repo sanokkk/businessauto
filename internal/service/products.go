@@ -1,12 +1,14 @@
 package service
 
 import (
+	"autoshop/internal/domain/models"
 	"autoshop/internal/service/dto"
 	"autoshop/internal/storage"
 	"autoshop/internal/storage/filters"
 	"autoshop/pkg/custom_errors"
 	"autoshop/pkg/logging"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"log/slog"
 )
@@ -14,6 +16,7 @@ import (
 type ProductsService interface {
 	GetProducts(filter *filters.FilterBody) (dto.GetProductsDto, error)
 	GetCategories() (*dto.GetCategoriesDto, error)
+	AddContent(productId string, uuid uuid.UUID) error
 }
 
 type ProductService struct {
@@ -88,4 +91,31 @@ func (s *ProductService) GetCategories() (*dto.GetCategoriesDto, error) {
 	}
 
 	return &dto.GetCategoriesDto{Categories: result}, nil
+}
+
+func (s *ProductService) AddContent(productId string, contentId uuid.UUID) error {
+	const op = "ProductService.AddContent"
+	log := logging.CreateLoggerWithOp(op)
+
+	log.Info("Начинаю обновление контента по товару", slog.String("prodId", productId))
+
+	prod, err := s.productsStorage.GetById(productId)
+	if err != nil {
+		log.Warn(fmt.Sprintf("Ошибка получения товара: %s", err.Error()))
+
+		return err
+	}
+
+	prod.ImagesIds = append(prod.ImagesIds, contentId)
+	if err = s.productsStorage.UpdateProduct(
+		prod.Id.String(),
+		func(product *models.Product) {
+			product.ImagesIds = prod.ImagesIds
+		}); err != nil {
+		log.Warn(fmt.Sprintf("Ошибка получения товара: %s", err.Error()))
+
+		return err
+	}
+
+	return nil
 }

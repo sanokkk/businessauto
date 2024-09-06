@@ -94,7 +94,8 @@ func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	products := public.Group("/content")
 
 	products.Use(middleware.CheckFeatureFlag())
-	products.POST("/post", r.UploadFile)
+	products.POST("/", r.UploadFile)
+	products.GET("/", r.DownloadFile)
 }
 
 func addCategoriesRoutes(public *gin.RouterGroup, r *HttpHandler) {

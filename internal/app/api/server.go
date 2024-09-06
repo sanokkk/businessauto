@@ -50,13 +50,12 @@ func configureMinioClient(cfg *config.Config) *minio.Client {
 	}
 
 	endpoint := "127.0.0.1:9000"
-	accessKeyID := "BsdGKMYfWizG3KX5jXet"
-	secretAccessKey := "TXVDFVbu4E10mfChKPFTTxprYd8JhB7Vbbdla2Im"
+
 	useSSL := false
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Creds:  credentials.NewStaticV4("minio-admin", "minio-admax", ""),
 		Secure: useSSL,
 	})
 	if err != nil {

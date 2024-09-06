@@ -11,4 +11,4 @@ api_config:
   host: localhost
   enable_any_origin: true
 content_storage_config:
-  use_content_storage: false
+  use_content_storage: true

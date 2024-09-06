@@ -125,6 +125,50 @@ paths:
       summary: Получение категорий
       tags:
       - Categories
+  /api/content/:
+    get:
+      description: downloads content from contentStorage
+      parameters:
+      - description: Content ID
+        in: query
+        name: contentId
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File downloaded successfully
+          schema:
+            type: file
+      summary: Скачивание контента
+      tags:
+      - Content
+    post:
+      consumes:
+      - multipart/form-data
+      description: uploads content for contentStorage
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Product ID
+        in: query
+        name: productId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Загрузка контента
+      tags:
+      - Content
   /api/products/get:
     post:
       consumes:

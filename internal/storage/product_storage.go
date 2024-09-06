@@ -187,6 +187,50 @@ func (s *ProductStore) GetCategories() ([]models.Category, error) {
 	return result, nil
 }
 
+func (s *ProductStore) GetById(id string) (*models.Product, error) {
+	const op = "ProductStore.GetById"
+	log := logging.CreateLoggerWithOp(op)
+
+	var result models.Product
+
+	tx := s.db.Table("products").Where("id = ?", id).Find(&result)
+	if tx.Error != nil {
+		err := errorswrap.Wrap(errors.New("Ошибка получения товара по id"), tx.Error)
+		log.Warn(err.Error())
+
+		return nil, tx.Error
+	}
+
+	return &result, nil
+}
+
+func (s *ProductStore) UpdateProduct(id string, updateFunc func(product *models.Product)) error {
+	const op = "ProductStore.UpdateProduct"
+	log := logging.CreateLoggerWithOp(op)
+
+	var product models.Product
+
+	tx := s.db.Table("products").Where("id = ?", id).Find(&product)
+	if tx.Error != nil {
+		err := errorswrap.Wrap(errors.New("Ошибка получения товара по id"), tx.Error)
+		log.Warn(err.Error())
+
+		return tx.Error
+	}
+
+	updateFunc(&product)
+
+	tx = s.db.Save(&product)
+	if tx.Error != nil {
+		err := errorswrap.Wrap(errors.New("Ошибка обновления товара по id"), tx.Error)
+		log.Warn(err.Error())
+
+		return tx.Error
+	}
+
+	return nil
+}
+
 func getOrderByExpression(orders []filters.OrderBy) string {
 	var sb strings.Builder
 

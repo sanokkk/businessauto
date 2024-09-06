@@ -28,6 +28,72 @@
                 }
             }
         },
+        "/api/content/": {
+            "get": {
+                "description": "downloads content from contentStorage",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Скачивание контента",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Content ID",
+                        "name": "contentId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File downloaded successfully",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "uploads content for contentStorage",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Загрузка контента",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "productId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/products/get": {
             "post": {
                 "description": "gets products with pagination and filters",

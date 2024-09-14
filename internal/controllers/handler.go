@@ -48,6 +48,7 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 	router := gin.Default()
 	router.Use(gin.Recovery())
+	router.Use(middleware.CORSMiddleware())
 	configureMiddleware(router)
 
 	public := router.Group("/api")

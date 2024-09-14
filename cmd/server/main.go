@@ -6,14 +6,12 @@ import (
 	"autoshop/internal/config"
 	"autoshop/internal/storage/migrate"
 	"autoshop/pkg/logging"
-	_ "github.com/mattn/go-sqlite3"
 	"log/slog"
 )
 
 // @title Tag Api for shop
 func main() {
 	cfg := config.MustLoadConfig()
-	//fmt.Printf("%+v\n", cfg)
 
 	logger := logging.GetLogger(&cfg.EnvConfig)
 	log := logger.With(slog.String("op", "main"))

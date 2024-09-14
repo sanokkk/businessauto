@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	errorswrap "github.com/hashicorp/errwrap"
 	"github.com/iancoleman/strcase"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log/slog"
@@ -23,7 +23,7 @@ type ProductStore struct {
 }
 
 func NewProductStore(cfg *config.DbConfig) *ProductStore {
-	db, err := gorm.Open(sqlite.Open(cfg.DbConnectionString), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	db, err := gorm.Open(postgres.Open(cfg.DbConnectionString), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
 		panic(err)
 	}

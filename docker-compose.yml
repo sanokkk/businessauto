@@ -1,0 +1,56 @@
+version: "3.8"
+
+networks:
+  businessauto:
+    driver: bridge
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pg
+      - minio
+    networks:
+      - businessauto
+    restart: unless-stopped
+    environment:
+      - CGO_ENABLED=0
+
+
+  pg:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admax
+      - POSTGRES_DB=businessauto
+
+    ports:
+      - "5432:5432"
+    networks:
+      - businessauto
+    volumes:
+      - ./data/postgres:/var/temp/data/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./data/mino:/var/temp/data/minio
+    environment:
+      - MINIO_ROOT_USER=minio-admin
+      - MINIO_ROOT_PASSWORD=minio-admax
+    networks:
+      - businessauto
+

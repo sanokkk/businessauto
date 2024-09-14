@@ -76,7 +76,7 @@ func (s *JwtAuthService) GetUser(userId uuid.UUID) (*dto.GetUserResponse, error)
 	const op = "JwtAuthService.GetUser"
 	log := logging.CreateLoggerWithOp(op)
 
-	user, err := s.userStore.GetUser(userId.String())
+	user, err := s.userStore.GetUser(userId)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
 			log.Error("Пользователь не найден", err)

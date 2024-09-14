@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS categories (
-    id VARCHAR(36) PRIMARY KEY,
+    id pg_catalog.uuid PRIMARY KEY,
     title text NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS products (
-    id VARCHAR(36) PRIMARY KEY,
+    id pg_catalog.uuid PRIMARY KEY,
     title text NOT NULL,
     price float NOT NULL,
     imageIds jsonb,
@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS product_category (
-    id VARCHAR(36) PRIMARY KEY,
-    productId VARCHAR(36) NOT NULL,
-    categoryId VARCHAR(36) NOT NULL,
+    id pg_catalog.uuid PRIMARY KEY,
+    productId pg_catalog.uuid NOT NULL,
+    categoryId pg_catalog.uuid NOT NULL,
     FOREIGN KEY (productId) REFERENCES products (id) ON DELETE CASCADE,
     FOREIGN KEY (categoryId) REFERENCES categories (id) ON DELETE CASCADE
 

@@ -5,10 +5,10 @@ import (
 	"autoshop/pkg/logging"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/pkg/errors"
-
-	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -45,7 +45,7 @@ func fullForward() {
 
 	m, err := migrate.New(
 		"file://"+dbConfig.MigrationsPath,
-		fmt.Sprintf("sqlite3://%s?x-migrations-table=%s", dbConfig.DbConnectionString, dbConfig.MigrationsTable))
+		fmt.Sprintf("%s?sslmode=%s&x-migrations-table=%s", dbConfig.DbConnectionString, dbConfig.SslMode, dbConfig.MigrationsTable))
 
 	if err != nil {
 		log.Error(errors.Wrap(err, "Ошибка миграции").Error())
@@ -76,7 +76,7 @@ func rollbackStep() {
 
 	m, err := migrate.New(
 		"file://"+dbConfig.MigrationsPath,
-		fmt.Sprintf("sqlite3://%s?x-migrations-table=%s", dbConfig.DbConnectionString, dbConfig.MigrationsTable))
+		fmt.Sprintf("%s?sslmode=%s&x-migrations-table=%s", dbConfig.DbConnectionString, dbConfig.SslMode, dbConfig.MigrationsTable))
 
 	if err != nil {
 		log.Error(errors.Wrap(err, "Ошибка миграции назад").Error())

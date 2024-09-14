@@ -1,14 +1,20 @@
 db_config:
-  connection_string: auto.db
+  connection_string: postgres://admin:admax@localhost:5432/businessauto
+  ssl_mode: disable
   migrations_path: ./migrations
   migrations_table: migrations
 jwt_config:
   secret: secretpa44
   expire_after: 20m
-  refresh_expire_after: 1h
+  refresh_expire_after: 12h
 api_config:
-  port: 8081
-  host: localhost
+  port: 8080
+  host: 0.0.0.0
   enable_any_origin: true
 content_storage_config:
   use_content_storage: true
+  host: localhost
+  port: 9000
+  user: minio-admin
+  secret: minio-admax
+  use_ssl: false

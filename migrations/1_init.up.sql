@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id           VARCHAR(36) PRIMARY KEY,
+    id           pg_catalog.uuid PRIMARY KEY,
     email        TEXT NOT NULL UNIQUE,
     fullName     TEXT NOT NULL,
     passwordHash TEXT NOT NULL,

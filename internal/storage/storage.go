@@ -3,11 +3,12 @@ package storage
 import (
 	"autoshop/internal/domain/models"
 	"autoshop/internal/storage/filters"
+	"github.com/google/uuid"
 )
 
 type UserStorage interface {
 	SaveUser(user *models.User) error
-	GetUser(id string) (*models.User, error)
+	GetUser(id uuid.UUID) (*models.User, error)
 	CheckCredentials(email string, password string) (*models.User, error)
 }
 

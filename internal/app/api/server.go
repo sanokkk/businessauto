@@ -7,7 +7,7 @@ import (
 	"autoshop/internal/storage"
 	"autoshop/pkg/logging"
 	"context"
-	"database/sql"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
@@ -24,12 +24,7 @@ type Handler interface {
 }
 
 func NewServer(cfg *config.Config, logger *slog.Logger) *Server {
-	db, err := sql.Open("sqlite3", cfg.DbConfig.DbConnectionString)
-	if err != nil {
-		panic(err)
-	}
-
-	userStorage := storage.NewSqliteUserStorage(db)
+	userStorage := storage.NewUsersStorage(&cfg.DbConfig)
 	productStorage := storage.NewProductStore(&cfg.DbConfig)
 
 	authService := service.NewJwtAuthService(userStorage)
@@ -49,14 +44,13 @@ func configureMinioClient(cfg *config.Config) *minio.Client {
 		return nil
 	}
 
-	endpoint := "127.0.0.1:9000"
+	minioCfg := cfg.ContentConfig
 
-	useSSL := false
+	endpoint := fmt.Sprintf("%s:%s", minioCfg.Host, minioCfg.Port)
 
-	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4("minio-admin", "minio-admax", ""),
-		Secure: useSSL,
+		Creds:  credentials.NewStaticV4(minioCfg.User, minioCfg.Secret, ""),
+		Secure: minioCfg.UseSsl,
 	})
 	if err != nil {
 		logger.Warn(err.Error())

@@ -18,6 +18,8 @@ services:
     restart: unless-stopped
     environment:
       - CGO_ENABLED=0
+      - MINIO_HOST=minio
+      - DB_CONN=postgres://admin:admax@pg:5432/businessauto
 
 
   pg:

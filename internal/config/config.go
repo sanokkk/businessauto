@@ -17,7 +17,7 @@ type Config struct {
 }
 
 type DbConfig struct {
-	DbConnectionString string `yaml:"connection_string"`
+	DbConnectionString string `yaml:"connection_string" env:"DB_CONN"`
 	MigrationsPath     string `yaml:"migrations_path"`
 	MigrationsTable    string `yaml:"migrations_table"`
 	SslMode            string `yaml:"ssl_mode"`

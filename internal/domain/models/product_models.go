@@ -9,6 +9,7 @@ type Category struct {
 	Id       uuid.UUID `json:"id"`
 	Title    string    `json:"title"`
 	Products []Product `gorm:"many2many:product_category;" json:"-,omitempty"`
+	ImageId  uuid.UUID `json:"imageId" gorm:"column:image_id"`
 }
 
 type Product struct {

@@ -36,6 +36,26 @@ func Authenticate() gin.HandlerFunc {
 
 		c.Set("uid", claims.UserId)
 		c.Set("token", token)
+		c.Set("role", claims.Role)
 		c.Next()
+	}
+}
+
+func CheckForRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Request.Header.Get("Authorization")
+
+		claims, _, err := jwt_helper.ValidateToken(token)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Ошибка валидации токена")})
+			c.Abort()
+			return
+		}
+
+		if claims.Role != role {
+			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Sprintf("Нет прав на действие")})
+			c.Abort()
+			return
+		}
 	}
 }

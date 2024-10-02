@@ -17,10 +17,29 @@ type ProductsService interface {
 	GetProducts(filter *filters.FilterBody) (dto.GetProductsDto, error)
 	GetCategories() (*dto.GetCategoriesDto, error)
 	AddContent(productId string, uuid uuid.UUID) error
+	AddCategory(model dto.CreateCategoryDto) (*models.Category, error)
 }
 
 type ProductService struct {
 	productsStorage storage.ProductStorage
+}
+
+func (s *ProductService) AddCategory(model dto.CreateCategoryDto) (*models.Category, error) {
+	const op = "ProductService.AddCategory"
+	log := logging.CreateLoggerWithOp(op)
+
+	category := models.Category{ImageId: model.ImageId, Title: model.Title}
+
+	resultCategory, err := s.productsStorage.CreateCategory(category, model.ProductIds)
+	if err != nil {
+		log.Warn("Ошибка создания категории", slog.String("error", err.Error()))
+
+		return nil, err
+	}
+
+	slog.Info(fmt.Sprintf("Успешно создал категорию %s - %s", resultCategory.Title, resultCategory.Id))
+
+	return resultCategory, nil
 }
 
 func NewProductService(productsStorage storage.ProductStorage) *ProductService {

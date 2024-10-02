@@ -22,6 +22,48 @@ type ProductStore struct {
 	db *gorm.DB
 }
 
+func (s *ProductStore) CreateCategory(category models.Category, productIds []uuid.UUID) (*models.Category, error) {
+	const op = "ProductStore.AddProduct"
+	log := logging.CreateLoggerWithOp(op)
+
+	tx := s.db.Begin()
+
+	category.Id = uuid.New()
+
+	tx = tx.Table("categories").Create(&category)
+	if tx.Error != nil {
+		log.Warn("Ошибка при создании категории", slog.String("error", tx.Error.Error()))
+
+		tx.Rollback()
+		return nil, tx.Error
+	}
+
+	for _, productId := range productIds {
+		var product models.Product
+		tx = tx.Table("products").Where("id = ?", productId).First(&product)
+		if tx.Error != nil {
+			log.Warn("Ошибка при поиске товара", slog.String("error", tx.Error.Error()), slog.String("productId", productId.String()))
+
+			continue
+		}
+
+		var prodCategory models.ProductCategory = models.ProductCategory{
+			Id:         uuid.New(),
+			ProductId:  product.Id,
+			CategoryId: category.Id}
+		tx = tx.Table("product_category").Create(&prodCategory)
+
+		if tx.Error != nil {
+			log.Warn("Ошибка при создании категории-товара", slog.String("error", tx.Error.Error()))
+
+			tx.Rollback()
+			return nil, tx.Error
+		}
+	}
+
+	return &category, nil
+}
+
 func NewProductStore(cfg *config.DbConfig) *ProductStore {
 	db, err := gorm.Open(postgres.Open(cfg.DbConnectionString), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {

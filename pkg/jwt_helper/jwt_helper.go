@@ -16,22 +16,23 @@ type SignedDetails struct {
 	//FullName string
 	UserId string
 	jwt.StandardClaims
+	Role string
 }
 
-func GenerateTokens(uid uuid.UUID) (signedToken string, refreshToken string, err error) {
+func GenerateTokens(uid uuid.UUID, role string) (signedToken string, refreshToken string, err error) {
 	const op = "JwtHelper.GenerateTokens"
 	logger := logging.CreateLoggerWithOp(op)
 
 	jwtConfig := config.MustLoadConfig().JwtConfig
 
-	signedToken, err = generateToken(uid.String(), jwtConfig.ExpireAfter, jwtConfig.Secret)
+	signedToken, err = generateToken(uid.String(), role, jwtConfig.ExpireAfter, jwtConfig.Secret)
 	if err != nil {
 		logger.Error(err.Error())
 
 		return "", "", err
 	}
 
-	refreshToken, err = generateToken(uid.String(), jwtConfig.RefreshExpireAfter, jwtConfig.Secret)
+	refreshToken, err = generateToken(uid.String(), role, jwtConfig.RefreshExpireAfter, jwtConfig.Secret)
 	if err != nil {
 		logger.Error(err.Error())
 
@@ -99,7 +100,8 @@ func Reauth(refresh string) (jwtToken string, refreshToken string, reauthError e
 	}
 
 	uid := claims.UserId
-	jwtToken, err = generateToken(uid, jwtConfig.ExpireAfter, jwtConfig.Secret)
+	role := claims.Role
+	jwtToken, err = generateToken(uid, role, jwtConfig.ExpireAfter, jwtConfig.Secret)
 	if err != nil {
 		log.Error(err.Error())
 
@@ -110,9 +112,10 @@ func Reauth(refresh string) (jwtToken string, refreshToken string, reauthError e
 }
 
 // todo add roles
-func generateToken(userId string, expireAfter time.Duration, secret string) (string, error) {
+func generateToken(userId string, role string, expireAfter time.Duration, secret string) (string, error) {
 	claims := &SignedDetails{
 		UserId: userId,
+		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().UTC().Add(expireAfter).Unix(),
 		},

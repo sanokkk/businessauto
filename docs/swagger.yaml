@@ -66,6 +66,8 @@ definitions:
     properties:
       id:
         type: string
+      imageId:
+        type: string
       title:
         type: string
     type: object
@@ -123,6 +125,45 @@ paths:
           schema:
             $ref: '#/definitions/dto.GetCategoriesDto'
       summary: Получение категорий
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      - multipart/form-data
+      description: creates categories
+      parameters:
+      - description: Authorization header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: category title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: category productIds
+        in: formData
+        items:
+          type: string
+        name: productIds
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+      summary: Создание категории
       tags:
       - Categories
   /api/content/:

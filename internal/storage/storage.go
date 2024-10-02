@@ -19,4 +19,5 @@ type ProductStorage interface {
 	GetWithFilter(filter filters.ProductFilter, skip int, take int, order []filters.OrderBy) ([]models.Product, error)
 	Get(skip int, take int, order []filters.OrderBy) ([]models.Product, error)
 	GetCategories() ([]models.Category, error)
+	CreateCategory(category models.Category, productIds []uuid.UUID) (*models.Category, error)
 }

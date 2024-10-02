@@ -102,5 +102,6 @@ func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
 func addCategoriesRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	categories := public.Group("/categories")
 
-	categories.GET("/", r.GetCategories)
+	categories.GET("/", middleware.Authenticate(), middleware.CheckForRole("admin"), r.GetCategories)
+	categories.POST("/", middleware.Authenticate(), middleware.CheckForRole("admin"), r.HandleAddCategory)
 }

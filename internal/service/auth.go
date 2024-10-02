@@ -51,7 +51,8 @@ func (s *JwtAuthService) Register(input RegisterInput) (*dto.TokenResponse, erro
 		Id:           uuid.New(),
 		Email:        input.Email,
 		FullName:     input.FullName,
-		PasswordHash: passwordHash}
+		PasswordHash: passwordHash,
+		Role:         "user"}
 
 	if err := s.userStore.SaveUser(&dbUser); err != nil {
 		if errors.Is(err, storage.ErrAlreadyExist) {
@@ -62,7 +63,7 @@ func (s *JwtAuthService) Register(input RegisterInput) (*dto.TokenResponse, erro
 		log.Error(err.Error())
 	}
 
-	token, refresh, err := jwt_helper.GenerateTokens(dbUser.Id)
+	token, refresh, err := jwt_helper.GenerateTokens(dbUser.Id, dbUser.Role)
 	if err != nil {
 		log.Error(err.Error(), slog.String("email", input.Email))
 
@@ -111,7 +112,7 @@ func (s *JwtAuthService) Login(input LoginInput) (*dto.TokenResponse, error) {
 		return nil, custom_errors.InternalError
 	}
 
-	token, refresh, err := jwt_helper.GenerateTokens(user.Id)
+	token, refresh, err := jwt_helper.GenerateTokens(user.Id, user.Role)
 	if err != nil {
 		log.Error(
 			err.Error(),

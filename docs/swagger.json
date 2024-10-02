@@ -26,6 +26,62 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "creates categories",
+                "consumes": [
+                    "application/json",
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Создание категории",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "category title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "category productIds",
+                        "name": "productIds",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Category"
+                        }
+                    }
+                }
             }
         },
         "/api/content/": {
@@ -363,6 +419,9 @@
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "string"
+                },
+                "imageId": {
                     "type": "string"
                 },
                 "title": {

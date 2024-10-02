@@ -1,10 +1,11 @@
+name: test workflow
 on:
   push:
       branches: ["main"]
 
 jobs:
   initial:
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     steps:
       - name: print hello main
         run: echo 'hello world!'

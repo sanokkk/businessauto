@@ -9,7 +9,7 @@ import (
 	"log/slog"
 )
 
-// @title Tag Api for shop
+// @title BusinessAuto API
 func main() {
 	cfg := config.MustLoadConfig()
 

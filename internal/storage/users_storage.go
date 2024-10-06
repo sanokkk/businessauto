@@ -74,7 +74,7 @@ func (r *UsersStorage) CheckCredentials(email string, password string) (*models.
 	log := logging.CreateLoggerWithOp(op)
 
 	var user models.User
-	res := r.db.Table("users").First(&models.User{Email: email}).Find(&user)
+	res := r.db.Table("users").Where("email = ?", email).First(&user)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 			log.Error("Нет пользователя с такой почтой", slog.String("email", email))

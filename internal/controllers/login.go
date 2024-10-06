@@ -3,7 +3,7 @@ package controllers
 import (
 	"autoshop/internal/service"
 	"autoshop/pkg/custom_errors"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 // @BasePath		/api/users
@@ -15,28 +15,22 @@ import (
 // @Produce		json
 // @Success		200	{object}	dto.TokenResponse
 // @Router			/api/users/login [post]
-func (h *HttpHandler) Login(c *gin.Context) {
+func (h *HttpHandler) Login(c *fiber.Ctx) error {
 	var input service.LoginInput
 
-	if err := c.BindJSON(&input); err != nil {
-		RespondWithError(c, 400, "Ошибка при вводе данных", err)
-
-		return
+	if err := c.BodyParser(&input); err != nil {
+		return RespondWithErrorFiber(c, 400, "Ошибка при вводе данных", err)
 	}
 
 	if err := h.validate.Struct(&input); err != nil {
-		RespondWithError(c, 400, err.Error(), custom_errors.ValidationError)
-
-		return
+		return RespondWithErrorFiber(c, 400, err.Error(), custom_errors.ValidationError)
 	}
 
 	tokenResponse, err := h.authService.Login(input)
 
 	if err != nil {
-		RespondWithError(c, 400, err.Error(), custom_errors.InternalError)
-
-		return
+		return RespondWithErrorFiber(c, 400, err.Error(), custom_errors.InternalError)
 	}
 
-	c.JSON(200, tokenResponse)
+	return c.JSON(tokenResponse)
 }

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -14,22 +14,27 @@ import (
 // @Produce		json
 // @Success		200	{object}	dto.GetUserResponse
 // @Router			/api/users/ [get]
-func (r *HttpHandler) GetMyUser(c *gin.Context) {
-	userId := c.GetString("uid")
+func (r *HttpHandler) GetMyUser(c *fiber.Ctx) error {
+	userId, exists := c.Locals("uid").(string)
+	if !exists {
+
+	}
 
 	parsedId, err := uuid.Parse(userId)
 	if err != nil {
-		RespondWithError(c, 401, "Ошибка парсинга JWT-токена", err)
+		RespondWithErrorFiber(c, 401, "Ошибка парсинга JWT-токена", err)
 
-		return
+		return err
 	}
 
 	user, err := r.authService.GetUser(parsedId)
 	if err != nil {
-		RespondWithError(c, 401, "Ошибка получения информации о пользователе", err)
+		RespondWithErrorFiber(c, 401, "Ошибка получения информации о пользователе", err)
 
-		return
+		return err
 	}
 
-	c.JSON(200, user)
+	_ = c.JSON(user)
+
+	return nil
 }

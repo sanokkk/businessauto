@@ -1,0 +1,2 @@
+INSERT INTO users (id, email, fullname, passwordhash, role)
+VALUES ('5e344c62-a1f2-4bfe-9c03-8033fe0781c3', 'root@root.com', 'root', '$2a$10$qvPBmKPGqmINvWlBvKozx.ujWH3b86FTbW5040n0b05wtqbvJoOEi', 'admin');

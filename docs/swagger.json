@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Tag Api for shop",
+        "title": "BusinessAuto API",
         "contact": {}
     },
     "paths": {
@@ -70,8 +70,7 @@
                         "collectionFormat": "csv",
                         "description": "category productIds",
                         "name": "productIds",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {

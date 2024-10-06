@@ -38,6 +38,14 @@ func (s *ProductStore) CreateCategory(category models.Category, productIds []uui
 		return nil, tx.Error
 	}
 
+	tx = tx.Commit()
+	if tx.Error != nil {
+		log.Warn("Ошибка при сохранении категории", slog.String("error", tx.Error.Error()))
+
+		tx.Rollback()
+		return nil, tx.Error
+	}
+
 	for _, productId := range productIds {
 		var product models.Product
 		tx = tx.Table("products").Where("id = ?", productId).First(&product)

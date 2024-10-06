@@ -4,7 +4,8 @@ import (
 	"autoshop/internal/service"
 	"autoshop/pkg/custom_errors"
 	"errors"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
 // @BasePath		/api/users
@@ -16,32 +17,24 @@ import (
 // @Produce		json
 // @Success		201	{object}	dto.TokenResponse
 // @Router			/api/users/register [post]
-func (r *HttpHandler) Register(c *gin.Context) {
+func (r *HttpHandler) Register(c *fiber.Ctx) error {
 	var input service.RegisterInput
 
-	if err := c.BindJSON(&input); err != nil {
-		RespondWithError(c, 400, "Ошибка при вводе данных", err)
-
-		return
+	if err := c.BodyParser(&input); err != nil {
+		return RespondWithErrorFiber(c, 400, "Ошибка при вводе данных", err)
 	}
 
 	if err := r.validate.Struct(&input); err != nil {
-		RespondWithError(c, 400, err.Error(), custom_errors.ValidationError)
-
-		return
+		return RespondWithErrorFiber(c, 400, err.Error(), custom_errors.ValidationError)
 	}
 
 	response, err := r.authService.Register(input)
 	if err != nil {
 		if errors.Is(err, custom_errors.AuthenticationError) {
-			RespondWithError(c, 500, err.Error(), custom_errors.AuthenticationError)
-
-			return
+			return RespondWithErrorFiber(c, 500, err.Error(), custom_errors.AuthenticationError)
 		}
-		RespondWithError(c, 500, err.Error(), custom_errors.RegistrationError)
-
-		return
+		return RespondWithErrorFiber(c, 500, err.Error(), custom_errors.RegistrationError)
 	}
 
-	c.JSON(201, response)
+	return c.Status(http.StatusCreated).JSON(response)
 }

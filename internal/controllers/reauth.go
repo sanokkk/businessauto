@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"autoshop/pkg/logging"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 // @BasePath		/api/users
@@ -14,19 +14,17 @@ import (
 // @Produce		json
 // @Success		200	{object}	dto.ReauthResponse
 // @Router			/api/users/reauth [get]
-func (r *HttpHandler) Reauth(c *gin.Context) {
+func (r *HttpHandler) Reauth(c *fiber.Ctx) error {
 	const op = "HttpHandler.Reauth"
 	log := logging.CreateLoggerWithOp(op)
 
 	log.Info("Поступил запрос на регенерацию токена")
 
-	refresh := c.GetHeader("Authorization")
+	refresh := c.Get("Authorization")
 	tokenResponse, err := r.authService.Reauth(refresh)
 	if err != nil {
-		RespondWithError(c, 401, err.Error(), err)
-
-		return
+		return RespondWithErrorFiber(c, 401, err.Error(), err)
 	}
 
-	c.JSON(200, tokenResponse)
+	return c.JSON(tokenResponse)
 }

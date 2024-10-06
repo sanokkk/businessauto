@@ -6,11 +6,16 @@ import (
 	"autoshop/internal/middleware"
 	"autoshop/internal/service"
 	"fmt"
-	"github.com/gin-contrib/cors"
+	cors "github.com/gofiber/fiber/v2/middleware/cors"
+	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
+
+	//"github.com/gin-contrib/cors"
+
+	//"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/gofiber/fiber/v2"
 	"log/slog"
 )
 
@@ -42,7 +47,7 @@ func NewHttpHandler(
 //	@BasePath	/api
 
 // starts http handler
-func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
+/*func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 	const op = "HttpHandler.Start"
 	log := r.logger.With(slog.String("op", op))
 
@@ -69,32 +74,67 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 		panic(err)
 	}
+}*/
+
+//	@title		HTTP api controller
+//	@version	1.0
+
+// @host		localhost:8080
+// @BasePath	/api
+func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
+	const op = "HttpHandler.Start"
+	log := r.logger.With(slog.String("op", op))
+
+	router := fiber.New()
+	router.Use(cors.New())
+
+	router.Use(recover2.New())
+
+	public := router.Group("/api")
+
+	public.Get("/swagger/*", swagger.HandlerDefault)
+
+	addProductRoutes(public, r)
+	addUserRoutes(public, r)
+	//addContentRoutes(public, r)
+	addCategoriesRoutes(public, r)
+
+	log.Info("Запускаю HTTP сервер")
+
+	addr := fmt.Sprintf("%s:%d", apiConfig.Host, apiConfig.Port)
+
+	if err := router.Listen(addr); err != nil {
+		log.Error(err.Error())
+
+		panic(err)
+	}
 }
 
-func configureMiddleware(router *gin.Engine) {
+/*func configureMiddleware(router *gin.Engine) {
 	corsCfg := configureCors()
 	router.Use(cors.New(corsCfg))
-}
+}*/
 
-func configureCors() cors.Config {
+/*func configureCors() cors.Config {
 	corsCfg := cors.DefaultConfig()
 	corsCfg.AllowCredentials = true
 	corsCfg.AllowFiles = true
 	corsCfg.AllowMethods = []string{"GET", "POST", "DELETE", "PATCH"}
 	corsCfg.AllowAllOrigins = true
 	return corsCfg
+}*/
+
+func addUserRoutes(public fiber.Router, r *HttpHandler) {
+	users := public.Group("/users")
+	users.Post("/register", r.Register)
+	users.Post("/login", r.Login)
+	users.Get("/reauth", middleware.AuthenticateFiber(), r.Reauth)
+	users.Get("/", middleware.AuthenticateFiber(), r.GetMyUser)
 }
 
-func addUserRoutes(public *gin.RouterGroup, r *HttpHandler) {
-	users := public.Group("/users")
-	users.POST("/register", r.Register)
-	users.POST("/login", r.Login)
-	users.GET("/reauth", middleware.Authenticate(), r.Reauth)
-	users.GET("/", middleware.Authenticate(), r.GetMyUser)
-}
-func addProductRoutes(public *gin.RouterGroup, r *HttpHandler) {
+func addProductRoutes(public fiber.Router, r *HttpHandler) {
 	products := public.Group("/products")
-	products.POST("/get", r.GetProducts)
+	products.Post("/get", r.GetProducts)
 }
 
 func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
@@ -105,9 +145,9 @@ func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
 	products.GET("/", r.DownloadFile)
 }
 
-func addCategoriesRoutes(public *gin.RouterGroup, r *HttpHandler) {
+func addCategoriesRoutes(public fiber.Router, r *HttpHandler) {
 	categories := public.Group("/categories")
 
-	categories.GET("/", middleware.Authenticate(), r.GetCategories)
-	categories.POST("/", middleware.Authenticate(), middleware.CheckForRole("admin"), r.HandleAddCategory)
+	categories.Get("/", r.GetCategories)
+	categories.Post("/", middleware.AuthenticateFiber(), middleware.CheckForRole("admin"), r.HandleAddCategory)
 }

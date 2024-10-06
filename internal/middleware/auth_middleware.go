@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
@@ -41,21 +42,46 @@ func Authenticate() gin.HandlerFunc {
 	}
 }
 
-func CheckForRole(role string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		token := c.Request.Header.Get("Authorization")
+func AuthenticateFiber() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		headers := c.GetReqHeaders()
+		tokens, exists := headers["Authorization"]
+		if !exists || tokens[0] == "" {
+			return c.Status(http.StatusUnauthorized).JSON(map[string]string{"error": fmt.Sprintf("Нет токена авторизации")})
+		}
+
+		token := tokens[0]
+		claims, isTokenValid, err := jwt_helper.ValidateToken(token)
+		if !isTokenValid {
+			if err != nil {
+				if errors.Is(err, custom_errors.TokenExpiredError) {
+					return c.Status(http.StatusUnauthorized).JSON(map[string]string{"error": fmt.Sprintf("Токен протух")})
+				}
+			}
+
+			return c.Status(http.StatusUnauthorized).JSON(map[string]string{"error": fmt.Sprintf("Ошибка валидации токена")})
+		}
+
+		c.Locals("uid", claims.UserId)
+		c.Locals("token", token)
+		c.Locals("role", claims.Role)
+		return c.Next()
+	}
+}
+
+func CheckForRole(role string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		token := c.Get("Authorization")
 
 		claims, _, err := jwt_helper.ValidateToken(token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Ошибка валидации токена")})
-			c.Abort()
-			return
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": fmt.Sprintf("Ошибка валидации токена")})
 		}
 
 		if claims.Role != role {
-			c.JSON(http.StatusForbidden, gin.H{"error": fmt.Sprintf("Нет прав на действие")})
-			c.Abort()
-			return
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": fmt.Sprintf("Нет прав на действие")})
 		}
+
+		return c.Next()
 	}
 }

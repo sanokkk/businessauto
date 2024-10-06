@@ -80,8 +80,7 @@ const docTemplate = `{
                         "collectionFormat": "csv",
                         "description": "category productIds",
                         "name": "productIds",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -504,7 +503,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Tag Api for shop",
+	Title:            "BusinessAuto API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

@@ -110,7 +110,7 @@ definitions:
     type: object
 info:
   contact: {}
-  title: Tag Api for shop
+  title: BusinessAuto API
 paths:
   /api/categories:
     get:
@@ -154,7 +154,6 @@ paths:
         items:
           type: string
         name: productIds
-        required: true
         type: array
       produces:
       - application/json

@@ -4,15 +4,15 @@ import (
 	"autoshop/internal/service"
 	"autoshop/internal/service/dto"
 	"autoshop/pkg/custom_errors"
+	"autoshop/pkg/helpers"
 	"autoshop/pkg/logging"
-	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"io"
 	"log/slog"
 	"mime/multipart"
-	"net/http"
+	"strings"
 )
 
 // @BasePath		/api/products
@@ -23,7 +23,7 @@ import (
 // @Produce		json
 // @Success		200	{object}	dto.GetCategoriesDto
 // @Router			/api/categories [get]
-func (r *HttpHandler) GetCategories(c *gin.Context) {
+func (r *HttpHandler) GetCategories(c *fiber.Ctx) error {
 	const op = "HttpHandler.GetCategories"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -33,11 +33,10 @@ func (r *HttpHandler) GetCategories(c *gin.Context) {
 	if err != nil {
 		log.Warn(fmt.Sprintf("Ошибка получения категорий: %w", err))
 
-		RespondWithError(c, 400, "Ошибка получения категорий, попробуйте еще раз", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка получения категорий, попробуйте еще раз", err)
 	}
 
-	c.JSON(200, categoriesResponse)
+	return c.JSON(categoriesResponse)
 }
 
 // @BasePath		/api/categories
@@ -46,14 +45,14 @@ func (r *HttpHandler) GetCategories(c *gin.Context) {
 // @Tags			Categories
 // @Accept			json
 // @Accept			multipart/form-data
-// @Param			Authorization	header	string	true	"Authorization header"
-// @Param			file		formData	file	true	"File to upload"
-// @Param			title		formData	string	true	"category title"
-// @Param			productIds		formData	[]string	true	"category productIds"
+// @Param			Authorization	header		string		true	"Authorization header"
+// @Param			file			formData	file		true	"File to upload"
+// @Param			title			formData	string		true	"category title"
+// @Param			productIds		formData	[]string	false	"category productIds"
 // @Produce		json
 // @Success		200	{object}	models.Category
 // @Router			/api/categories [post]
-func (r *HttpHandler) HandleAddCategory(c *gin.Context) {
+func (r *HttpHandler) HandleAddCategory(c *fiber.Ctx) error {
 	const op = "HttpHandler.HandleAddCategory"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -64,41 +63,30 @@ func (r *HttpHandler) HandleAddCategory(c *gin.Context) {
 	if err != nil {
 		log.Warn("Ошибка получения изображения для категории", slog.String("error", err.Error()))
 
-		RespondWithError(c, 400, "Ошибка получения изображения для категории", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка получения изображения для категории", err)
 	}
 
-	imageId, err := r.uploadImage(c, formFile, log)
+	imageId, err := r.uploadImage(formFile, log)
 	if err != nil {
-		RespondWithError(c, 500, "Внутренняя ошибка сервера", err)
-		return
+		return RespondWithErrorFiber(c, 500, "Внутренняя ошибка сервера", err)
 	}
 
-	form, err := c.MultipartForm()
-	// todo конвертить это в массив строк
-	productIdsStr := form.Value["productId"][0]
-	var productIds []uuid.UUID
-	if err := json.Unmarshal([]byte(productIdsStr), &productIds); err != nil {
+	productIdsStr := strings.Split(c.FormValue("productIds"), ",")
+	productIds, err := helpers.ConvertStringArray(productIdsStr)
+	if err != nil {
 		log.Warn("Ошибка при получении запроса", slog.String("error", err.Error()))
 
-		RespondWithError(c, 400, "Ошибка при получении запроса", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при получении запроса", err)
 	}
 
 	var request dto.CreateCategoryDto
-	if err := c.ShouldBind(&request); err != nil {
-		log.Warn("Ошибка при получении запроса", slog.String("error", err.Error()))
-
-		RespondWithError(c, 400, "Ошибка при получении запроса", err)
-		return
-	}
+	request.Title = c.FormValue("title")
 
 	if err := r.validate.Struct(&request); err != nil {
-		RespondWithError(c, 400, err.Error(), custom_errors.ValidationError)
-
-		return
+		return RespondWithErrorFiber(c, 400, err.Error(), custom_errors.ValidationError)
 	}
 
+	request.ProductIds = productIds
 	request.ImageId = *imageId
 	category, err := r.productService.AddCategory(request)
 
@@ -106,16 +94,14 @@ func (r *HttpHandler) HandleAddCategory(c *gin.Context) {
 		log.Warn("Ошибка при создании категории", slog.String("error", err.Error()))
 
 		if err != nil {
-			RespondWithError(c, 500, "Внутренняя ошибка сервера", err)
-			return
+			return RespondWithErrorFiber(c, 500, "Внутренняя ошибка сервера", err)
 		}
 	}
 
-	c.JSON(http.StatusCreated, category)
-
+	return c.JSON(category)
 }
 
-func (r *HttpHandler) uploadImage(c *gin.Context, formFile *multipart.FileHeader, log *slog.Logger) (*uuid.UUID, error) {
+func (r *HttpHandler) uploadImage(formFile *multipart.FileHeader, log *slog.Logger) (*uuid.UUID, error) {
 	file, err := formFile.Open()
 	if err != nil {
 		return nil, err
@@ -131,7 +117,6 @@ func (r *HttpHandler) uploadImage(c *gin.Context, formFile *multipart.FileHeader
 	if err != nil {
 		log.Warn("Ошибка получения байтов файла", slog.String("error", err.Error()))
 
-		RespondWithError(c, 500, "Внутренняя ошибка сервера", err)
 		return nil, err
 	}
 
@@ -141,7 +126,6 @@ func (r *HttpHandler) uploadImage(c *gin.Context, formFile *multipart.FileHeader
 	if err != nil {
 		log.Warn("Ошибка загрузки файла", slog.String("error", err.Error()))
 
-		RespondWithError(c, 500, "Внутренняя ошибка сервера", err)
 		return nil, err
 	}
 

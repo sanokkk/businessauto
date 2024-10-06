@@ -12,8 +12,6 @@ import (
 
 	//"github.com/gin-contrib/cors"
 
-	//"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"log/slog"
@@ -96,7 +94,7 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 	addProductRoutes(public, r)
 	addUserRoutes(public, r)
-	//addContentRoutes(public, r)
+	addContentRoutes(public, r)
 	addCategoriesRoutes(public, r)
 
 	log.Info("Запускаю HTTP сервер")
@@ -137,12 +135,12 @@ func addProductRoutes(public fiber.Router, r *HttpHandler) {
 	products.Post("/get", r.GetProducts)
 }
 
-func addContentRoutes(public *gin.RouterGroup, r *HttpHandler) {
+func addContentRoutes(public fiber.Router, r *HttpHandler) {
 	products := public.Group("/content")
 
 	products.Use(middleware.CheckFeatureFlag())
-	products.POST("/", r.UploadFile)
-	products.GET("/", r.DownloadFile)
+	products.Post("/", r.UploadFile)
+	products.Get("/", r.DownloadFile)
 }
 
 func addCategoriesRoutes(public fiber.Router, r *HttpHandler) {

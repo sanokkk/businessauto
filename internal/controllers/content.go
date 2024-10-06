@@ -7,10 +7,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"io"
 	"log/slog"
-	"net/http"
 )
 
 // @BasePath		/api/content
@@ -23,7 +22,7 @@ import (
 // @Produce		json
 // @Success		200	{string}	string
 // @Router			/api/content/ [post]
-func (h *HttpHandler) UploadFile(c *gin.Context) {
+func (h *HttpHandler) UploadFile(c *fiber.Ctx) error {
 	const op = "HttpHandler.UploadFile"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -32,53 +31,48 @@ func (h *HttpHandler) UploadFile(c *gin.Context) {
 	productId := c.Query("productId")
 	if productId == "" {
 		log.Warn("Не выбран товар для загрузки контента")
-		RespondWithError(c, 400, "Не выбран товар для загрузки контента", errors.New("Не выбран товар для загрузки контента"))
-		return
+		return RespondWithErrorFiber(c, 400, "Не выбран товар для загрузки контента", errors.New("Не выбран товар для загрузки контента"))
 	}
 
 	fileEntity, err := c.FormFile("file")
 	if err != nil {
 		log.Warn("Ошибка при загрузке файла", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при загрузке файла", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при загрузке файла", err)
 	}
 
 	file, err := fileEntity.Open()
 	if err != nil {
 		log.Warn("Ошибка при обработке файла", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при обработке файла", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при обработке файла", err)
 	}
 
-	defer func() {
+	defer func() error {
 		if err := file.Close(); err != nil {
 			log.Warn("Ошибка при закрытии файла", slog.String("error", err.Error()))
-			RespondWithError(c, 400, "Ошибка при закрытии файла", err)
-			return
+			return RespondWithErrorFiber(c, 400, "Ошибка при закрытии файла", err)
 		}
+		return nil
 	}()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Warn("Ошибка при чтении байтов файла", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при чтении байтов файла", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при чтении байтов файла", err)
 	}
 
 	res, err := h.contentService.UploadContent(service.FileInput{Content: fileBytes, Size: fileEntity.Size})
 	if err != nil {
 		log.Warn("Ошибка при загрузке байтов файла", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при загрузке байтов файла", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при загрузке байтов файла", err)
 	}
 
 	if err = h.productService.AddContent(productId, *res); err != nil {
 		log.Warn("Ошибка при загрузке обновлении контента товара", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при загрузке обновлении контента товара", err)
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при загрузке обновлении контента товара", err)
 	}
 
-	c.Status(200)
+	c.Status(fiber.StatusOK)
+	return nil
 }
 
 // @BasePath		/api/content
@@ -89,7 +83,7 @@ func (h *HttpHandler) UploadFile(c *gin.Context) {
 // @Produce		octet-stream
 // @Success		200	{file}	file	"File downloaded successfully"
 // @Router			/api/content/ [get]
-func (h *HttpHandler) DownloadFile(c *gin.Context) {
+func (h *HttpHandler) DownloadFile(c *fiber.Ctx) error {
 	const op = "HttpHandler.UploadFile"
 	log := logging.CreateLoggerWithOp(op)
 
@@ -99,18 +93,14 @@ func (h *HttpHandler) DownloadFile(c *gin.Context) {
 	contentBytes, err := h.contentService.DownloadContent(contentId)
 	if err != nil {
 		if errors.Is(err, custom_errors.NoFileError) {
-			RespondWithError(c, 404, "Файл не существует", err)
-
-			return
+			return RespondWithErrorFiber(c, 404, "Файл не существует", err)
 		}
 
 		log.Warn("Ошибка при скачивании контента товара", slog.String("error", err.Error()))
-		RespondWithError(c, 400, "Ошибка при скачивании контента товара", err)
-
-		return
+		return RespondWithErrorFiber(c, 400, "Ошибка при скачивании контента товара", err)
 	}
 
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=octet-stream.local_%s", contentId))
-	c.Header("Content-Type", "application/octet-stream")
-	c.DataFromReader(http.StatusOK, int64(len(contentBytes)), "application/octet-stream", bytes.NewReader(contentBytes), nil)
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=octet-stream.local_%s", contentId))
+	c.Set("Content-Type", "application/octet-stream")
+	return c.SendStream(bytes.NewReader(contentBytes), len(contentBytes))
 }

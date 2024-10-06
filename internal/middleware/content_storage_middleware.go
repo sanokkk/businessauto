@@ -3,21 +3,18 @@ package middleware
 import (
 	"autoshop/internal/config"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
-func CheckFeatureFlag() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func CheckFeatureFlag() fiber.Handler {
+	return func(c *fiber.Ctx) error {
 		contentStorageCfg := config.MustLoadConfig().ContentConfig
 
 		if !contentStorageCfg.UseContentStorage {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Действие с контентом еще недоступно")})
-
-			return
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Действие с контентом еще недоступно")})
 		}
 
-		c.Next()
+		return c.Next()
 	}
-
 }

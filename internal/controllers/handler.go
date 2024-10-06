@@ -1,19 +1,16 @@
 package controllers
 
 import (
-	//_ "autoshop/docs"
 	"autoshop/internal/config"
 	"autoshop/internal/middleware"
 	"autoshop/internal/service"
 	"fmt"
-	cors "github.com/gofiber/fiber/v2/middleware/cors"
-	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/swagger"
-
-	//"github.com/gin-contrib/cors"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	cors "github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 	"log/slog"
 )
 
@@ -41,42 +38,6 @@ func NewHttpHandler(
 //	@title		HTTP api controller
 //	@version	1.0
 
-//	@host		localhost:8081
-//	@BasePath	/api
-
-// starts http handler
-/*func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
-	const op = "HttpHandler.Start"
-	log := r.logger.With(slog.String("op", op))
-
-	router := gin.Default()
-	router.Use(gin.Recovery())
-	router.Use(middleware.CORSMiddleware())
-	configureMiddleware(router)
-
-	public := router.Group("/api")
-
-	public.GET("/user", middleware.Authenticate(), r.GetMyUser)
-	public.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	addUserRoutes(public, r)
-	addProductRoutes(public, r)
-	addContentRoutes(public, r)
-	addCategoriesRoutes(public, r)
-
-	log.Info("Запускаю HTTP сервер")
-
-	addr := fmt.Sprintf("%s:%d", apiConfig.Host, apiConfig.Port)
-
-	if err := router.Run(addr); err != nil {
-		log.Error(err.Error())
-
-		panic(err)
-	}
-}*/
-
-//	@title		HTTP api controller
-//	@version	1.0
-
 // @host		localhost:8080
 // @BasePath	/api
 func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
@@ -85,6 +46,9 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 
 	router := fiber.New()
 	router.Use(cors.New())
+	router.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
 	router.Use(recover2.New())
 
@@ -107,20 +71,6 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 		panic(err)
 	}
 }
-
-/*func configureMiddleware(router *gin.Engine) {
-	corsCfg := configureCors()
-	router.Use(cors.New(corsCfg))
-}*/
-
-/*func configureCors() cors.Config {
-	corsCfg := cors.DefaultConfig()
-	corsCfg.AllowCredentials = true
-	corsCfg.AllowFiles = true
-	corsCfg.AllowMethods = []string{"GET", "POST", "DELETE", "PATCH"}
-	corsCfg.AllowAllOrigins = true
-	return corsCfg
-}*/
 
 func addUserRoutes(public fiber.Router, r *HttpHandler) {
 	users := public.Group("/users")

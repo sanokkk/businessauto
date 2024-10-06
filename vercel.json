@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "routes": [
-    {
-      "src": "cmd/server",
-      "dest": "/cmd/server/main.go"
-    }
-  ]
-}

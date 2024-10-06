@@ -72,11 +72,17 @@ func (r *HttpHandler) Start(apiConfig config.ApiConfig) {
 }
 
 func configureMiddleware(router *gin.Engine) {
-	cfg := config.MustLoadConfig()
+	corsCfg := configureCors()
+	router.Use(cors.New(corsCfg))
+}
 
-	if cfg.ApiConfig.EnableAnyOrigin {
-		router.Use(cors.Default())
-	}
+func configureCors() cors.Config {
+	corsCfg := cors.DefaultConfig()
+	corsCfg.AllowCredentials = true
+	corsCfg.AllowFiles = true
+	corsCfg.AllowMethods = []string{"GET", "POST", "DELETE", "PATCH"}
+	corsCfg.AllowAllOrigins = true
+	return corsCfg
 }
 
 func addUserRoutes(public *gin.RouterGroup, r *HttpHandler) {

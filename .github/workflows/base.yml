@@ -1,0 +1,55 @@
+name: test workflow
+on:
+  push:
+    branches: ["dev"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout to repository
+        uses: actions/checkout@v4
+      - name: setup go env
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ vars.GO_VERSION }}
+      - name: build go application
+        run: go build ./cmd/server/main.go
+      - name: run tests
+        run: go test ./tests
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: checkout to repository
+        uses: actions/checkout@v4
+      - name: login to docker registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ vars.IMAGE_NAME }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+      - name: Adding Known Hosts
+        run: ssh-keyscan -p ${{ vars.SSH_PORT }} -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: "Deploy to server"
+        run: ssh -v businessauto@${{ vars.SSH_HOST }} -p ${{ vars.SSH_PORT }} 'cd ${{ vars.PROJECT_PATH }}/${{ github.event.repository.name }} && git pull && docker login ghcr.io -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} && docker-compose pull && docker-compose build && docker-compose up -d && docker system prune --force'
